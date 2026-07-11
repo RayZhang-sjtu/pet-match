@@ -9,3 +9,4 @@
 - 结果改为明确代表品种，并增加无数据持久化的分享功能。
 - 增加品牌一致的社交分享封面。
 - 增加 GitHub Pages 静态导出和自动发布工作流。
+- 首次发布至 `https://rayzhang-sjtu.github.io/pet-match/`。

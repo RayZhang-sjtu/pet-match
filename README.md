@@ -13,6 +13,10 @@
 
 不熟悉这些网站概念时，请先阅读 [网站决策通俗说明](docs/WEBSITE_DECISION_GUIDE.md)。
 
+## 在线地址
+
+[https://rayzhang-sjtu.github.io/pet-match/](https://rayzhang-sjtu.github.io/pet-match/)
+
 ## 本地运行
 
 需要 Node.js 22.13 或更高版本。运行 `npm ci`，再运行 `npm run dev`。提交修改前运行 `npm run check`。
