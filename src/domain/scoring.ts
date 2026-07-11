@@ -58,9 +58,11 @@ export function calculateResult(
     .filter((profile) => profile.id !== "pause")
     .map((profile) => ({
       profile,
-      score: Object.entries(profile.weights).reduce(
-        (sum, [dimension, weight]) =>
-          sum + score(dimension as Dimension) * (weight ?? 0),
+      score: (Object.keys(profile.ideal) as Dimension[]).reduce(
+        (sum, dimension) => {
+          const difference = score(dimension) - profile.ideal[dimension];
+          return sum - difference * difference;
+        },
         0,
       ),
     }))
@@ -76,7 +78,7 @@ export function validateContent(
   profiles: Recommendation[],
 ): string[] {
   const errors: string[] = [];
-  if (questions.length !== 30) errors.push("题目必须恰好为 30 道");
+  if (questions.length !== 35) errors.push("题目必须恰好为 35 道");
   if (
     new Set(questions.map((question) => question.id)).size !== questions.length
   )
@@ -106,7 +108,11 @@ export function validateContent(
       (profile) =>
         !profile.title ||
         !profile.reason ||
+        !profile.petType ||
         !profile.example ||
+        Object.values(profile.ideal).some(
+          (value) => !Number.isFinite(value) || value < 0 || value > 1,
+        ) ||
         profile.checks.length < 3,
     )
   )

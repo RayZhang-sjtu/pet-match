@@ -7,6 +7,7 @@ import {
   type Dimension,
 } from "../src/content/test-content";
 import { calculateResult } from "../src/domain/scoring";
+import { createResultCard, downloadResultCard } from "../src/ui/result-card";
 
 const labels = ["很不符合", "不太符合", "一般", "比较符合", "非常符合"];
 
@@ -35,18 +36,17 @@ export default function Home() {
 
   async function shareResult() {
     if (!result) return;
-    const text = `我在 Pet Match 测出的适配伙伴是：${result.title}（${result.example}）。你也来试试吧！`;
     try {
-      if (navigator.share) {
-        await navigator.share({
-          title: "我的 Pet Match 结果",
-          text,
-          url: window.location.href,
-        });
+      const blob = await createResultCard(result);
+      const file = new File([blob], "pet-match-result.png", {
+        type: "image/png",
+      });
+      if (navigator.share && navigator.canShare?.({ files: [file] })) {
+        await navigator.share({ title: "我的 Pet Match 结果", files: [file] });
         setShareStatus("分享成功");
       } else {
-        await navigator.clipboard.writeText(`${text} ${window.location.href}`);
-        setShareStatus("结果和链接已复制");
+        downloadResultCard(blob, "pet-match-result.png");
+        setShareStatus("当前浏览器不支持图片分享，已为你保存图片");
       }
     } catch (error) {
       if (error instanceof DOMException && error.name === "AbortError") return;
@@ -54,19 +54,28 @@ export default function Home() {
     }
   }
 
+  async function saveResult() {
+    if (!result) return;
+    try {
+      downloadResultCard(
+        await createResultCard(result),
+        "pet-match-result.png",
+      );
+      setShareStatus("结果图片已保存");
+    } catch {
+      setShareStatus("图片生成失败，请稍后再试");
+    }
+  }
+
   if (!started)
     return (
       <main className="shell hero">
-        <span className="eyebrow">Pet Match · 内容草案 v0.1</span>
-        <h1>
-          哪位毛茸茸的伙伴，
-          <br />
-          更适合你的生活？
-        </h1>
+        <h1 className="brandTitle">Pet Match</h1>
+        <h2 className="heroQuestion">哪位小伙伴会更喜欢你呢？</h2>
         <p>为每一个想养宠物的年轻人，快速找到更适合他们的宠物。</p>
         <div className="facts" aria-label="测试说明">
-          <span>30 道生活场景</span>
-          <span>约 5 分钟</span>
+          <span>35 道生活与性格场景</span>
+          <span>约 6 分钟</span>
           <span>不保存答案</span>
         </div>
         <button className="primary" onClick={() => setStarted(true)}>
@@ -81,15 +90,17 @@ export default function Home() {
   if (result)
     return (
       <main className="shell result">
-        <span className="eyebrow">你的匹配方向</span>
+        <span className="eyebrow resultEyebrow">
+          你的匹配方向 · {result.petType}
+        </span>
         <div className="resultIcon" aria-hidden="true">
           {result.emoji}
         </div>
         <h1>{result.title}</h1>
-        <h2>{result.example}</h2>
+        <h2 className="breedName">{result.example}</h2>
         <p>{result.reason}</p>
-        <section>
-          <h3>决定前请确认</h3>
+        <section className="resultNotes">
+          <h3>决定前的小注释</h3>
           <ul>
             {result.checks.map((item) => (
               <li key={item}>{item}</li>
@@ -101,7 +112,10 @@ export default function Home() {
         </p>
         <div className="actions">
           <button className="primary" onClick={shareResult}>
-            分享我的结果
+            分享结果图片
+          </button>
+          <button className="secondary" onClick={saveResult}>
+            保存结果图片
           </button>
           <button className="secondary" onClick={restart}>
             重新测试

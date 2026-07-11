@@ -52,6 +52,19 @@ body {
   letter-spacing: -0.045em;
   margin: 18px 0;
 }
+.hero .brandTitle {
+  font-size: clamp(4.8rem, 15vw, 8.5rem);
+  line-height: 0.88;
+  margin: 18px 0 26px;
+  color: var(--green);
+  letter-spacing: -0.075em;
+}
+.heroQuestion {
+  font-size: clamp(1.45rem, 4vw, 2.15rem);
+  line-height: 1.3;
+  margin: 0 0 12px;
+  color: var(--ink);
+}
 .hero > p,
 .result > p {
   font-size: 1.08rem;
@@ -187,6 +200,50 @@ legend {
   font-size: 4.5rem;
   box-shadow: var(--shadow);
   transform: rotate(-3deg);
+  margin: 24px auto 12px;
+  width: 160px;
+  height: 160px;
+  font-size: 6.4rem;
+}
+.resultEyebrow {
+  text-align: center;
+}
+.result {
+  text-align: center;
+}
+.result > p {
+  text-align: left;
+  margin-left: auto;
+  margin-right: auto;
+}
+.breedName {
+  font-size: clamp(1.8rem, 6vw, 3rem) !important;
+}
+.resultNotes {
+  text-align: left;
+  font-size: 0.66rem;
+  color: var(--muted);
+  padding: 9px 15px !important;
+  border-radius: 16px !important;
+  box-shadow: none !important;
+}
+.resultNotes h3 {
+  margin: 0 0 3px;
+  font-size: 0.7rem;
+}
+.resultNotes ul {
+  margin: 0;
+  padding-left: 14px;
+}
+.resultNotes li {
+  margin: 2px 0;
+  line-height: 1.35;
+}
+.result .notice {
+  text-align: left;
+}
+.result .actions {
+  justify-content: center;
 }
 .result h1 {
   font-size: clamp(2.5rem, 7vw, 4.2rem);

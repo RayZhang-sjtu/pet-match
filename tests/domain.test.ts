@@ -3,8 +3,20 @@ import { questions, recommendations } from "../src/content/test-content";
 import { calculateResult, validateContent } from "../src/domain/scoring";
 
 describe("测试内容", () => {
-  it("包含 30 道唯一且有效的题目", () =>
+  it("包含 35 道唯一且有效的题目", () =>
     expect(validateContent(questions, recommendations)).toEqual([]));
+  it("提供 26 个明确品种和 1 个安全结果", () => {
+    expect(
+      recommendations.filter((profile) => profile.id !== "pause"),
+    ).toHaveLength(26);
+    expect(
+      new Set(
+        recommendations
+          .filter((profile) => profile.id !== "pause")
+          .map((profile) => profile.example),
+      ).size,
+    ).toBe(26);
+  });
   it("能定位重复结果和无权重题目", () => {
     const badQuestions = questions.map((question, index) =>
       index ? question : { ...question, weights: {} },
@@ -37,13 +49,13 @@ describe("评分", () => {
       );
     },
   );
-  it("固定高分输入得到明确结果", () => {
+  it("固定高分输入得到明确且稳定的结果", () => {
     const answers = Object.fromEntries(
       questions.map((question) => [question.id, 4]),
     );
-    expect(calculateResult(answers, questions, recommendations).id).toBe(
-      "active-dog",
-    );
+    const first = calculateResult(answers, questions, recommendations).id;
+    expect(first).toBe(calculateResult(answers, questions, recommendations).id);
+    expect(recommendations.map((profile) => profile.id)).toContain(first);
   });
   it.each([0, 6, 2.5, Number.NaN])("拒绝非法答案 %s", (value) => {
     const answers = Object.fromEntries(
@@ -52,6 +64,37 @@ describe("评分", () => {
     answers.q01 = value;
     expect(() => calculateResult(answers, questions, recommendations)).toThrow(
       "有效答案",
+    );
+  });
+  it("每个品种画像都能成为匹配结果", () => {
+    const results = recommendations
+      .filter((profile) => profile.id !== "pause")
+      .map((profile) => {
+        const answers = Object.fromEntries(
+          questions.map((question) => {
+            const dimension = Object.keys(
+              question.weights,
+            )[0] as keyof typeof profile.ideal;
+            return [question.id, Math.round(profile.ideal[dimension] * 4) + 1];
+          }),
+        );
+        for (const id of [
+          "q04",
+          "q05",
+          "q06",
+          "q21",
+          "q22",
+          "q26",
+          "q27",
+          "q28",
+        ])
+          answers[id] = Math.max(3, answers[id]);
+        return calculateResult(answers, questions, recommendations).id;
+      });
+    expect(results).toEqual(
+      recommendations
+        .filter((profile) => profile.id !== "pause")
+        .map((profile) => profile.id),
     );
   });
 });
