@@ -245,6 +245,56 @@ legend {
 .result .actions {
   justify-content: center;
 }
+.secondaryMatch {
+  margin: 28px auto 8px !important;
+  width: min(520px, 100%);
+  padding: 16px 20px !important;
+  border-radius: 22px !important;
+  background: #eef5e9 !important;
+  box-shadow: none !important;
+  text-align: center !important;
+}
+.secondaryLabel {
+  margin: 0 !important;
+  font-size: 0.72rem !important;
+  color: var(--muted) !important;
+  text-align: center !important;
+}
+.secondaryIcon {
+  font-size: 2.5rem;
+  margin: 5px 0;
+}
+.secondaryMatch h3 {
+  font-size: 1.05rem;
+  margin: 4px 0;
+  color: var(--green);
+}
+.secondaryMatch > p:last-child {
+  font-size: 0.72rem !important;
+  line-height: 1.5 !important;
+  margin: 5px auto !important;
+  text-align: left !important;
+}
+.resultQr {
+  margin: 24px auto 8px !important;
+  padding: 12px !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  text-align: center !important;
+}
+.resultQr img {
+  display: block;
+  width: 132px;
+  height: 132px;
+  margin: auto;
+  border-radius: 12px;
+}
+.resultQr p {
+  font-size: 0.72rem;
+  margin: 7px 0 0;
+  color: var(--muted);
+}
 .result h1 {
   font-size: clamp(2.5rem, 7vw, 4.2rem);
   margin-bottom: 8px;

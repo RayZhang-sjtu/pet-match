@@ -1,15 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import QRCode from "qrcode";
+import Image from "next/image";
 import {
   questions,
   recommendations,
   type Dimension,
 } from "../src/content/test-content";
-import { calculateResult } from "../src/domain/scoring";
+import { calculateBreedMatch, calculateResult } from "../src/domain/scoring";
 import { createResultCard, downloadResultCard } from "../src/ui/result-card";
 
 const labels = ["很不符合", "不太符合", "一般", "比较符合", "非常符合"];
+const publicUrl = "https://rayzhang-sjtu.github.io/pet-match/";
 
 export default function Home() {
   const [started, setStarted] = useState(false);
@@ -17,10 +20,25 @@ export default function Home() {
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [finished, setFinished] = useState(false);
   const [shareStatus, setShareStatus] = useState("");
+  const [qrCodeUrl, setQrCodeUrl] = useState("");
   const question = questions[index];
   const result = finished
     ? calculateResult(answers, questions, recommendations)
     : null;
+  const matchedBreed = finished
+    ? calculateBreedMatch(answers, questions, recommendations)
+    : null;
+  const safetyLimited = result?.id === "pause";
+
+  useEffect(() => {
+    QRCode.toDataURL(publicUrl, {
+      width: 220,
+      margin: 1,
+      color: { dark: "#284238", light: "#fffaf3" },
+    })
+      .then(setQrCodeUrl)
+      .catch(() => setQrCodeUrl(""));
+  }, []);
 
   function choose(value: number) {
     setAnswers((current) => ({ ...current, [question.id]: value }));
@@ -37,7 +55,10 @@ export default function Home() {
   async function shareResult() {
     if (!result) return;
     try {
-      const blob = await createResultCard(result);
+      const blob = await createResultCard(
+        result,
+        safetyLimited ? matchedBreed : null,
+      );
       const file = new File([blob], "pet-match-result.png", {
         type: "image/png",
       });
@@ -58,7 +79,7 @@ export default function Home() {
     if (!result) return;
     try {
       downloadResultCard(
-        await createResultCard(result),
+        await createResultCard(result, safetyLimited ? matchedBreed : null),
         "pet-match-result.png",
       );
       setShareStatus("结果图片已保存");
@@ -110,6 +131,28 @@ export default function Home() {
         <p className="notice">
           同一品种的个体也会因年龄、健康、经历和性格而不同。未成年人需由监护人同意并承担最终责任；请优先咨询兽医或正规救助机构。
         </p>
+        {safetyLimited && matchedBreed && (
+          <section className="secondaryMatch" aria-label="性格匹配宠物参考">
+            <p className="secondaryLabel">如果只看性格与相处偏好</p>
+            <div className="secondaryIcon" aria-hidden="true">
+              {matchedBreed.emoji}
+            </div>
+            <h3>{matchedBreed.example}</h3>
+            <p>{matchedBreed.reason}</p>
+          </section>
+        )}
+        {qrCodeUrl && (
+          <section className="resultQr">
+            <Image
+              src={qrCodeUrl}
+              alt="扫描二维码打开 Pet Match 公开网站"
+              width={132}
+              height={132}
+              unoptimized
+            />
+            <p>扫码邀请朋友来测一测</p>
+          </section>
+        )}
         <div className="actions">
           <button className="primary" onClick={shareResult}>
             分享结果图片

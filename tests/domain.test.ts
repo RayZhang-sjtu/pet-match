@@ -1,21 +1,33 @@
 import { describe, expect, it } from "vitest";
 import { questions, recommendations } from "../src/content/test-content";
-import { calculateResult, validateContent } from "../src/domain/scoring";
+import {
+  calculateBreedMatch,
+  calculateResult,
+  validateContent,
+} from "../src/domain/scoring";
 
 describe("测试内容", () => {
   it("包含 35 道唯一且有效的题目", () =>
     expect(validateContent(questions, recommendations)).toEqual([]));
-  it("提供 26 个明确品种和 1 个安全结果", () => {
+  it("提供 90 个明确品种和 1 个安全结果", () => {
     expect(
       recommendations.filter((profile) => profile.id !== "pause"),
-    ).toHaveLength(26);
+    ).toHaveLength(90);
     expect(
       new Set(
         recommendations
           .filter((profile) => profile.id !== "pause")
           .map((profile) => profile.example),
       ).size,
-    ).toBe(26);
+    ).toBe(90);
+  });
+  it("题库以性格题为主", () => {
+    expect(
+      questions.filter((question) => question.kind === "personality"),
+    ).toHaveLength(23);
+    expect(
+      questions.filter((question) => question.kind === "lifestyle"),
+    ).toHaveLength(12);
   });
   it("能定位重复结果和无权重题目", () => {
     const badQuestions = questions.map((question, index) =>
@@ -49,6 +61,18 @@ describe("评分", () => {
       );
     },
   );
+  it("安全门槛不足时仍能计算缩小版品种推荐", () => {
+    const answers = Object.fromEntries(
+      questions.map((question) => [question.id, 4]),
+    );
+    answers.q06 = 1;
+    expect(calculateResult(answers, questions, recommendations).id).toBe(
+      "pause",
+    );
+    expect(
+      calculateBreedMatch(answers, questions, recommendations).id,
+    ).not.toBe("pause");
+  });
   it("固定高分输入得到明确且稳定的结果", () => {
     const answers = Object.fromEntries(
       questions.map((question) => [question.id, 4]),

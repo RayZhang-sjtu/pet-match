@@ -1,4 +1,7 @@
 import type { Recommendation } from "../content/test-content";
+import QRCode from "qrcode";
+
+const publicUrl = "https://rayzhang-sjtu.github.io/pet-match/";
 
 function roundedRect(
   context: CanvasRenderingContext2D,
@@ -39,10 +42,20 @@ function wrapText(
     context.fillText(line, x, y + lineNumber * lineHeight);
 }
 
-export async function createResultCard(result: Recommendation): Promise<Blob> {
+async function loadImage(source: string): Promise<HTMLImageElement> {
+  const image = new Image();
+  image.src = source;
+  await image.decode();
+  return image;
+}
+
+export async function createResultCard(
+  result: Recommendation,
+  alternative: Recommendation | null = null,
+): Promise<Blob> {
   const canvas = document.createElement("canvas");
   canvas.width = 1080;
-  canvas.height = 1350;
+  canvas.height = 1500;
   const context = canvas.getContext("2d");
   if (!context) throw new Error("当前浏览器无法生成图片");
   context.fillStyle = "#fffaf3";
@@ -59,7 +72,7 @@ export async function createResultCard(result: Recommendation): Promise<Blob> {
   context.fillStyle = "#386650";
   context.font = "800 54px system-ui, sans-serif";
   context.fillText("Pet Match", 540, 100);
-  roundedRect(context, 130, 160, 820, 1030, 72, "rgba(255,255,255,.92)");
+  roundedRect(context, 130, 160, 820, 1200, 72, "rgba(255,255,255,.92)");
   context.font = "150px system-ui, sans-serif";
   context.fillText(result.emoji, 540, 390);
   context.fillStyle = "#68796f";
@@ -74,14 +87,45 @@ export async function createResultCard(result: Recommendation): Promise<Blob> {
   context.textAlign = "left";
   context.fillStyle = "#68796f";
   context.font = "400 34px system-ui, sans-serif";
-  wrapText(context, result.reason, 200, 770, 680, 56, 6);
+  wrapText(context, result.reason, 200, 770, 680, 56, 4);
+  if (alternative) {
+    roundedRect(context, 205, 1010, 670, 190, 34, "#eef5e9");
+    context.textAlign = "center";
+    context.fillStyle = "#68796f";
+    context.font = "600 24px system-ui, sans-serif";
+    context.fillText("如果只看性格与相处偏好", 540, 1055);
+    context.font = "52px system-ui, sans-serif";
+    context.fillText(alternative.emoji, 290, 1140);
+    context.fillStyle = "#386650";
+    context.font = "800 30px system-ui, sans-serif";
+    context.fillText(alternative.example, 575, 1125);
+    context.fillStyle = "#68796f";
+    context.font = "400 21px system-ui, sans-serif";
+    context.fillText(alternative.petType, 575, 1160);
+  }
+  const qrDataUrl = await QRCode.toDataURL(publicUrl, {
+    width: 170,
+    margin: 1,
+    color: { dark: "#284238", light: "#fffaf3" },
+  });
+  context.drawImage(
+    await loadImage(qrDataUrl),
+    455,
+    alternative ? 1220 : 1050,
+    170,
+    170,
+  );
   context.textAlign = "center";
   context.fillStyle = "#386650";
-  context.font = "700 30px system-ui, sans-serif";
-  context.fillText("哪位小伙伴会更喜欢你呢？", 540, 1110);
+  context.font = "700 25px system-ui, sans-serif";
+  context.fillText(
+    "扫码来测：哪位小伙伴会更喜欢你？",
+    540,
+    alternative ? 1420 : 1250,
+  );
   context.fillStyle = "#7b897f";
-  context.font = "400 24px system-ui, sans-serif";
-  context.fillText("娱乐与初步生活方式匹配 · 具体个体会有差异", 540, 1255);
+  context.font = "400 20px system-ui, sans-serif";
+  context.fillText("娱乐与初步生活方式匹配 · 具体个体会有差异", 540, 1460);
   return new Promise((resolve, reject) =>
     canvas.toBlob(
       (blob) => (blob ? resolve(blob) : reject(new Error("图片生成失败"))),

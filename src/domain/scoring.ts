@@ -33,6 +33,14 @@ export function calculateResult(
   if (!pause) throw new Error("结果资料缺少 pause 安全结果");
   if (hardConstraintIds.some((id) => answers[id] <= 2)) return pause;
 
+  return calculateBreedMatch(answers, questions, profiles);
+}
+
+export function calculateBreedMatch(
+  answers: Record<string, number>,
+  questions: Question[],
+  profiles: Recommendation[],
+): Recommendation {
   const totals = {} as Record<Dimension, number>;
   const counts = {} as Record<Dimension, number>;
   for (const question of questions)
@@ -48,12 +56,6 @@ export function calculateResult(
     if (!counts[dimension]) throw new Error(`评分维度 ${dimension} 没有题目`);
     return totals[dimension] / counts[dimension];
   };
-  if (
-    score("safety") < 0.5 ||
-    score("resources") < 0.5 ||
-    score("commitment") < 0.5
-  )
-    return pause;
   const candidates = profiles
     .filter((profile) => profile.id !== "pause")
     .map((profile) => ({
