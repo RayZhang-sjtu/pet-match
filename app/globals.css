@@ -208,6 +208,15 @@ legend {
 .resultEyebrow {
   text-align: center;
 }
+.resultBrand {
+  color: var(--green);
+  font-size: clamp(3.4rem, 12vw, 6.5rem);
+  font-weight: 900;
+  letter-spacing: -0.075em;
+  line-height: 0.9;
+  margin-bottom: 28px;
+  text-align: center;
+}
 .result {
   text-align: center;
 }
@@ -253,6 +262,51 @@ legend {
   background: #eef5e9 !important;
   box-shadow: none !important;
   text-align: center !important;
+}
+.personalityResult {
+  display: grid;
+  grid-template-columns: 150px 1fr;
+  gap: 24px;
+  align-items: start;
+  text-align: left;
+  background: linear-gradient(145deg, #fffefd, #eef5e9) !important;
+}
+.matchScore {
+  width: 132px;
+  height: 132px;
+  border-radius: 50%;
+  display: grid;
+  place-content: center;
+  text-align: center;
+  background: var(--pink);
+  color: var(--green);
+}
+.matchScore strong {
+  font-size: 2.2rem;
+  line-height: 1;
+}
+.matchScore span {
+  font-size: 0.72rem;
+  margin-top: 7px;
+}
+.personalityCopy h3 {
+  color: var(--green);
+  font-size: 1.4rem;
+  margin: 5px 0 12px;
+}
+.personalityCopy h4 {
+  margin: 18px 0 6px;
+}
+.personalityCopy p {
+  color: var(--muted);
+  line-height: 1.7;
+  margin: 6px 0;
+}
+.personalityCopy small {
+  color: var(--muted);
+  display: block;
+  line-height: 1.5;
+  margin-top: 14px;
 }
 .secondaryLabel {
   margin: 0 !important;
@@ -353,6 +407,12 @@ legend {
   }
   .actions button {
     width: 100%;
+  }
+  .personalityResult {
+    grid-template-columns: 1fr;
+  }
+  .matchScore {
+    margin: auto;
   }
 }
 @media (prefers-reduced-motion: reduce) {

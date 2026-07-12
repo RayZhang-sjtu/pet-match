@@ -8,7 +8,13 @@ import {
   recommendations,
   type Dimension,
 } from "../src/content/test-content";
-import { calculateBreedMatch, calculateResult } from "../src/domain/scoring";
+import {
+  calculateBreedMatch,
+  calculateMatchPercentage,
+  calculatePersonalityInsights,
+  calculateResult,
+  describePersonalityMatch,
+} from "../src/domain/scoring";
 import { createResultCard, downloadResultCard } from "../src/ui/result-card";
 
 const labels = ["很不符合", "不太符合", "一般", "比较符合", "非常符合"];
@@ -29,6 +35,14 @@ export default function Home() {
     ? calculateBreedMatch(answers, questions, recommendations)
     : null;
   const safetyLimited = result?.id === "pause";
+  const personalityInsights = finished
+    ? calculatePersonalityInsights(answers, questions)
+    : [];
+  const personalityBreed = safetyLimited ? matchedBreed : result;
+  const matchPercentage =
+    finished && personalityBreed
+      ? calculateMatchPercentage(answers, questions, personalityBreed)
+      : null;
 
   useEffect(() => {
     QRCode.toDataURL(publicUrl, {
@@ -95,7 +109,7 @@ export default function Home() {
         <h2 className="heroQuestion">哪位小伙伴会更喜欢你呢？</h2>
         <p>为每一个想养宠物的年轻人，快速找到更适合他们的宠物。</p>
         <div className="facts" aria-label="测试说明">
-          <span>35 道生活与性格场景</span>
+          <span>30 道生活与性格场景</span>
           <span>约 6 分钟</span>
           <span>不保存答案</span>
         </div>
@@ -111,6 +125,7 @@ export default function Home() {
   if (result)
     return (
       <main className="shell result">
+        <div className="resultBrand">Pet Match</div>
         <span className="eyebrow resultEyebrow">
           你的匹配方向 · {result.petType}
         </span>
@@ -120,6 +135,36 @@ export default function Home() {
         <h1>{result.title}</h1>
         <h2 className="breedName">{result.example}</h2>
         <p>{result.reason}</p>
+        {personalityBreed && matchPercentage !== null && (
+          <section className="personalityResult">
+            <div
+              className="matchScore"
+              aria-label={`宠物匹配度 ${matchPercentage}%`}
+            >
+              <strong>{matchPercentage}%</strong>
+              <span>宠物匹配度</span>
+            </div>
+            <div className="personalityCopy">
+              <p className="secondaryLabel">你的主人性格画像</p>
+              <h3>
+                {personalityInsights.map((item) => item.label).join(" · ")}
+              </h3>
+              <p>
+                {personalityInsights.map((item) => item.description).join("")}
+              </p>
+              <h4>你和主宠为什么合拍</h4>
+              <p>
+                {describePersonalityMatch(
+                  personalityInsights,
+                  personalityBreed,
+                )}
+              </p>
+              <small>
+                匹配度表示本次答案与品种画像的接近程度，不是统计概率或心理诊断。
+              </small>
+            </div>
+          </section>
+        )}
         <section className="resultNotes">
           <h3>决定前的小注释</h3>
           <ul>

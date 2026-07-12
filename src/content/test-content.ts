@@ -37,33 +37,37 @@ const q = (
 ): Question => ({ id, text, weights: { [dimension]: 1 }, kind });
 
 export const questions: Question[] = [
-  q("q01", "我每天都能稳定安排时间照顾宠物。", "commitment", "lifestyle"),
-  q("q04", "家中成年人或共同居住者支持饲养宠物。", "safety", "lifestyle"),
   q(
-    "q05",
-    "如果我是未成年人，监护人愿意承担最终照护和费用责任。",
+    "q01",
+    "我能长期安排每日照护，并在旅行时找到可靠代养。",
+    "commitment",
+    "lifestyle",
+  ),
+  q(
+    "q04",
+    "共同居住者支持养宠；若我是未成年人，监护人愿意承担最终责任。",
     "safety",
     "lifestyle",
   ),
-  q("q06", "我的住所明确允许饲养我考虑的宠物。", "safety", "lifestyle"),
   q(
-    "q07",
-    "我能提供与宠物体型和活动需求相符的安全空间。",
-    "activity",
+    "q06",
+    "我的住所允许养宠，也能提供符合体型和活动需求的安全空间。",
+    "safety",
     "lifestyle",
   ),
-  q("q18", "我能接受毛发、垫料、气味或少量环境杂乱。", "care", "lifestyle"),
-  q("q21", "我有稳定预算支付食物、用品和常规医疗。", "resources", "lifestyle"),
   q(
-    "q22",
-    "我能为突发医疗费用预留资金或制定可靠方案。",
+    "q21",
+    "我有稳定预算支付食物、用品、常规医疗和突发医疗。",
     "resources",
     "lifestyle",
   ),
-  q("q23", "我愿意寻找具备相应物种经验的兽医服务。", "specialist", "lifestyle"),
-  q("q26", "家中没有尚未解决的严重动物过敏风险。", "safety", "lifestyle"),
-  q("q27", "家中成员和现有宠物能与新宠安全共处。", "safety", "lifestyle"),
-  q("q28", "旅行或假期时，我有可靠的代养安排。", "commitment", "lifestyle"),
+  q(
+    "q26",
+    "家中没有未解决的严重过敏风险，成员和现有宠物也能与新宠安全共处。",
+    "safety",
+    "lifestyle",
+  ),
+  q("q18", "我能接受毛发、垫料、气味或少量环境杂乱。", "care", "lifestyle"),
   q("p01", "在热闹聚会中，我通常会主动认识新朋友。", "social", "personality"),
   q(
     "p02",
@@ -147,6 +151,12 @@ export const questions: Question[] = [
   q("p21", "我愿意为喜欢的事物持续学习专业知识。", "specialist", "personality"),
   q("p22", "我常主动发起聊天、活动或共同计划。", "social", "personality"),
   q("p23", "事情进展缓慢时，我仍能按步骤坚持完成。", "patience", "personality"),
+  q(
+    "p24",
+    "做重要决定前，我会先了解信息，再按自己的节奏行动。",
+    "commitment",
+    "personality",
+  ),
 ];
 
 const checks = [

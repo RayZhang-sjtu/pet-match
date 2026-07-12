@@ -2,12 +2,14 @@ import { describe, expect, it } from "vitest";
 import { questions, recommendations } from "../src/content/test-content";
 import {
   calculateBreedMatch,
+  calculateMatchPercentage,
+  calculatePersonalityInsights,
   calculateResult,
   validateContent,
 } from "../src/domain/scoring";
 
 describe("测试内容", () => {
-  it("包含 35 道唯一且有效的题目", () =>
+  it("包含 30 道唯一且有效的题目", () =>
     expect(validateContent(questions, recommendations)).toEqual([]));
   it("提供 90 个明确品种和 1 个安全结果", () => {
     expect(
@@ -21,13 +23,13 @@ describe("测试内容", () => {
       ).size,
     ).toBe(90);
   });
-  it("题库以性格题为主", () => {
+  it("题库以性格题为主，现实题保持精简", () => {
     expect(
       questions.filter((question) => question.kind === "personality"),
-    ).toHaveLength(23);
+    ).toHaveLength(24);
     expect(
       questions.filter((question) => question.kind === "lifestyle"),
-    ).toHaveLength(12);
+    ).toHaveLength(6);
   });
   it("能定位重复结果和无权重题目", () => {
     const badQuestions = questions.map((question, index) =>
@@ -49,7 +51,7 @@ describe("评分", () => {
     expect(() => calculateResult({}, questions, recommendations)).toThrow(
       "所有题目",
     ));
-  it.each(["q04", "q05", "q06", "q21", "q22", "q26", "q27", "q28"])(
+  it.each(["q01", "q04", "q06", "q21", "q26"])(
     "单个硬门槛 %s 不满足时建议先体验",
     (id) => {
       const answers = Object.fromEntries(
@@ -81,6 +83,21 @@ describe("评分", () => {
     expect(first).toBe(calculateResult(answers, questions, recommendations).id);
     expect(recommendations.map((profile) => profile.id)).toContain(first);
   });
+  it("生成人格特质和有边界的匹配度", () => {
+    const answers = Object.fromEntries(
+      questions.map((question) => [question.id, 4]),
+    );
+    const result = calculateBreedMatch(answers, questions, recommendations);
+    const insights = calculatePersonalityInsights(answers, questions);
+    expect(insights).toHaveLength(3);
+    expect(insights.every((item) => item.label && item.description)).toBe(true);
+    expect(
+      calculateMatchPercentage(answers, questions, result),
+    ).toBeGreaterThanOrEqual(0);
+    expect(
+      calculateMatchPercentage(answers, questions, result),
+    ).toBeLessThanOrEqual(100);
+  });
   it.each([0, 6, 2.5, Number.NaN])("拒绝非法答案 %s", (value) => {
     const answers = Object.fromEntries(
       questions.map((question) => [question.id, 4]),
@@ -102,16 +119,7 @@ describe("评分", () => {
             return [question.id, Math.round(profile.ideal[dimension] * 4) + 1];
           }),
         );
-        for (const id of [
-          "q04",
-          "q05",
-          "q06",
-          "q21",
-          "q22",
-          "q26",
-          "q27",
-          "q28",
-        ])
+        for (const id of ["q04", "q06", "q21", "q26"])
           answers[id] = Math.max(3, answers[id]);
         return calculateResult(answers, questions, recommendations).id;
       });
